@@ -57,9 +57,19 @@ app.get('/api/addQuestion', async (req, res) => {
   const { question } = req.query
   decodedQuestion = decodeURI(question)
 
-  const questionAdded = await knex('results').insert({ question: decodedQuestion, first: 0, second: 0, third: 0, fourth: 0 })
+  await knex('results').insert({ question: decodedQuestion, first: 0, second: 0, third: 0, fourth: 0 })
 
   res.status(200).json('Question has been added')
 })
+
+if (process.env.NODE_ENV === 'production') {
+  // Serve any static files
+  app.use(express.static(path.join(__dirname, 'client/build')));
+    
+  // Handle React routing, return all requests to React app
+  app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+}
 
 app.listen(port, () => console.log(`Listening on port ${port}`))

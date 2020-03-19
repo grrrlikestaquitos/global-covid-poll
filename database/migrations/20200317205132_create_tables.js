@@ -14,6 +14,17 @@ exports.up = async function(knex) {
 
   await resultsTable
   await participantTable
+
+  await knex('results').insert([
+    { question: "How did you feel when the outbreak started in Wuhan?", first: 0, second: 0, third: 0, fourth: 0 },
+    { question: "Do you think it will get worse around the globe?", first: 0, second: 0, third: 0, fourth: 0 },
+    { question: "Have you been tested for COVID-19?", first: 0, second: 0, third: 0, fourth: 0 },
+    { question: "Do you know where to get tested?", first: 0, second: 0, third: 0, fourth: 0 },
+    { question: "Has the pandemic negatively affected your financial situation?", first: 0, second: 0, third: 0, fourth: 0 },
+    { question: "Do you wash your hands regularly?", first: 0, second: 0, third: 0, fourth: 0 },
+  ])
+
+  await knex('participants').insert({ count: 0 })
 };
 
 exports.down = async function(knex) {
