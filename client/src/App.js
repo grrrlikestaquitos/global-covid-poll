@@ -3,9 +3,15 @@ import './App.css';
 import icon from './covid_icon.png';
 
 export class App extends Component {
+  state = {
+    participantCount: 0
+  }
+
   async componentDidMount() {
-    const data = await fetch('api/home');
-    console.log(data)
+    fetch('api/participants')
+    .then((response) => response.json())
+    .then((result) => this.setState({ participantCount: result.count }))
+    .catch(() => {})
   }
 
   render() {
@@ -37,8 +43,8 @@ export class App extends Component {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', marginTop: -40 }}>
-          <p style={{ fontSize: 75, fontWeight: 700, color: '#575757', borderBottomWidth: 3, borderBottomColor: '#575757', borderBottomStyle: 'solid', textAlign: 'center' }}>
-            10k<br/>
+          <p style={{ fontSize: 80, fontWeight: 700, color: '#575757', borderBottomWidth: 3, borderBottomColor: '#575757', borderBottomStyle: 'solid', textAlign: 'center' }}>
+            {this.state.participantCount.toLocaleString()}<br/>
             🙋‍♂️&🙋‍♀️👉🗳
           </p>
         </div>
@@ -46,36 +52,36 @@ export class App extends Component {
         <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '5%', paddingRight: '5%', marginTop: -30 }}>
 
           <QuestionContainer question={"How did you feel when the outbreak started in Wuhan?"}>
-            <EmojiButton emoji={"😀"} label={"I felt safe"} color={'#bca'}/>
-            <EmojiButton emoji={"😟"} label={"I felt anxious"} color={'#ccb3aa'}/>
-            <EmojiButton emoji={"🤔"} label={"I wasn't sure"} color={'#abc'}/>
+            <EmojiButton emoji={"😀"} label={"I felt safe"} color={'#bca'} position={'first'}/>
+            <EmojiButton emoji={"😟"} label={"I felt anxious"} color={'#ccb3aa'} position={'second'}/>
+            <EmojiButton emoji={"🤔"} label={"I wasn't sure"} color={'#abc'} position={'third'}/>
           </QuestionContainer>
 
           <QuestionContainer question={"Do you think it will get worse around the globe?"}>
-            <EmojiButton emoji={"🤕"} label={"Yes"} color={'#a5d3b3'}/>
-            <EmojiButton emoji={"🙂"} label={"No"} color={'#a5c9d3'}/>
-            <EmojiButton emoji={"🤐"} label={"Possibly, too early to tell"} color={'#b4a5d3'}/>
+            <EmojiButton emoji={"🤕"} label={"Yes"} color={'#a5d3b3'} position={'first'}/>
+            <EmojiButton emoji={"🙂"} label={"No"} color={'#a5c9d3'} position={'second'}/>
+            <EmojiButton emoji={"🤐"} label={"Possibly, too early to tell"} color={'#b4a5d3'} position={'third'}/>
           </QuestionContainer>
 
           <QuestionContainer question={"Have you been tested for COVID-19?"}>
-            <EmojiButton emoji={"🧑‍🔬"} label={"Yes"} color={'#c3bc87'}/>
-            <EmojiButton emoji={"😬"} label={"No"} color={'#879dc3'}/>
-            <EmojiButton emoji={"✋"} label={"No, but I plan to!"} color={'#c38794'}/>
+            <EmojiButton emoji={"🧑‍🔬"} label={"Yes"} color={'#c3bc87'} position={'first'}/>
+            <EmojiButton emoji={"😬"} label={"No"} color={'#879dc3'} position={'second'}/>
+            <EmojiButton emoji={"✋"} label={"No, but I plan to!"} color={'#c38794'} position={'third'}/>
           </QuestionContainer>
 
           <QuestionContainer question={"Do you know where to get tested?"}>
-            <EmojiButton emoji={"🤓"} label={"Yes"} color={'#bca'}/>
-            <EmojiButton emoji={"😕"} label={"No"} color={'#ccb3aa'}/>
+            <EmojiButton emoji={"🤓"} label={"Yes"} color={'#bca'} position={'first'}/>
+            <EmojiButton emoji={"😕"} label={"No"} color={'#ccb3aa'} position={'second'}/>
           </QuestionContainer>
 
           <QuestionContainer question={"Has the pandemic negatively affected your financial situation?"}>
-            <EmojiButton emoji={"💸"} label={"Yes"} color={'#bca'}/>
-            <EmojiButton emoji={"💰"} label={"No"} color={'#ccb3aa'}/>
+            <EmojiButton emoji={"💸"} label={"Yes"} color={'#bca'} position={'first'}/>
+            <EmojiButton emoji={"💰"} label={"No"} color={'#ccb3aa'} position={'second'}/>
           </QuestionContainer>
 
           <QuestionContainer question={"Do you wash your hands regularly?"}>
-            <EmojiButton emoji={"🧼"} label={"I try to"} color={'#bca'}/>
-            <EmojiButton emoji={"🛀"} label={"I could do better"} color={'#ccb3aa'}/>
+            <EmojiButton emoji={"🧼"} label={"I try to"} color={'#bca'} position={'first'}/>
+            <EmojiButton emoji={"🛀"} label={"I could do better"} color={'#ccb3aa'} position={'second'}/>
           </QuestionContainer>
         </div>
 
@@ -87,16 +93,45 @@ export class App extends Component {
 
 class QuestionContainer extends Component {
   state = {
-    selectedAnswer: localStorage.getItem(this.props.question)
+    selectedAnswer: localStorage.getItem(this.props.question),
+    pollResults: { question: '', first: 0, second: 0, third: 0, fourth: 0 }
   }
 
-  onClick = (label) => {
+  onClick = (label, position) => {
+    const { question } = this.props;
+    // User Selected Answer For The Question Answer, Store Answer in Cache - Countermeasure to spamming
     this.setState({ selectedAnswer: label });
-    localStorage.setItem(this.props.question, label);
+    localStorage.setItem(question, label);
+
+    // Update database count for vote selected
+    fetch(`api/addVote?question=${question}&position=${position}`)
+    .then((response) => response.json())
+    .then((result) => {})
+    .catch(() => {})
+
+    // Update database count for participants if they haven't voted
+    const didAlreadyVote = localStorage.getItem('participationNumber')
+
+    if (!didAlreadyVote) {
+      fetch('api/addParticipant')
+      .then((response) => response.json())
+      .then((result) => localStorage.setItem('participationNumber', result))
+      .catch(() => {})
+    }
+  }
+
+  async componentDidMount() {
+    const questionKey = this.props.question
+    
+    fetch(`api/pollResults?question=${questionKey}`)
+    .then((response) => response.json())
+    .then((result) => this.setState({ pollResults: result }))
+    .catch(() => {})
   }
 
   render() {
-    const pointerEvents = this.state.selectedAnswer ? 'none' : '';
+    const { selectedAnswer, pollResults } = this.state;
+    const pointerEvents = selectedAnswer ? 'none' : '';
 
     return (
       <div>
@@ -106,13 +141,13 @@ class QuestionContainer extends Component {
 
         <div style={{ display: 'flex', pointerEvents, flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 50 }}>
           {this.props.children.map((child) => {
-            const { label } = child.props;
+            const { label, position } = child.props;
             const clonedElement = React.cloneElement(child,
               {
                 onClick: this.onClick,
-                didSelect: this.state.selectedAnswer === label,
-                showPolls: !!this.state.selectedAnswer,
-                pollResults: 0
+                didSelect: selectedAnswer === label,
+                showPolls: !!selectedAnswer,
+                pollResults: pollResults[position]
               });
             return clonedElement;
           })}
@@ -128,15 +163,16 @@ class EmojiButton extends Component {
   }
 
   onClick = () => {
-    this.props.onClick(this.props.label);
+    const { onClick, label, position } = this.props;
+    onClick(label, position);
   }
 
   determineBackgrounColor = () => {
     const { isHovering } = this.state;
-    const { didSelect } = this.props;
+    const { didSelect, color } = this.props;
 
     if (isHovering || didSelect) {
-      return this.props.color;
+      return color;
     } else {
       return '#fff';
     }
@@ -162,8 +198,8 @@ class EmojiButton extends Component {
         </button>
         {showPolls &&
           <p style={{ alignSelf: 'center', textAlign: 'center', fontSize: 22 }}>
-            {pollResults}<br/>
-            🗳
+            {pollResults.toLocaleString()} 🗳<br/>
+            submitted
           </p>}
       </div>
     )
