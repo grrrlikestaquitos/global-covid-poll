@@ -37,8 +37,9 @@ export class App extends Component {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', marginTop: -40 }}>
-          <p style={{ fontSize: 75, fontWeight: 700, color: '#575757', borderBottomWidth: 3, borderBottomColor: '#575757', borderBottomStyle: 'solid' }}>
-            10k Participants
+          <p style={{ fontSize: 75, fontWeight: 700, color: '#575757', borderBottomWidth: 3, borderBottomColor: '#575757', borderBottomStyle: 'solid', textAlign: 'center' }}>
+            10k<br/>
+            🙋‍♂️&🙋‍♀️👉🗳
           </p>
         </div>
 
@@ -106,7 +107,13 @@ class QuestionContainer extends Component {
         <div style={{ display: 'flex', pointerEvents, flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 50 }}>
           {this.props.children.map((child) => {
             const { label } = child.props;
-            const clonedElement = React.cloneElement(child, { onClick: this.onClick, didSelect: this.state.selectedAnswer === label, showPolls: !!this.state.selectedAnswer });
+            const clonedElement = React.cloneElement(child,
+              {
+                onClick: this.onClick,
+                didSelect: this.state.selectedAnswer === label,
+                showPolls: !!this.state.selectedAnswer,
+                pollResults: 0
+              });
             return clonedElement;
           })}
         </div>
@@ -136,7 +143,7 @@ class EmojiButton extends Component {
   }
 
   render() {
-    const { showPolls, pollResults } = this.props;
+    const { showPolls, pollResults, emoji, label } = this.props;
 
     return (
       <div>
@@ -146,17 +153,17 @@ class EmojiButton extends Component {
           style={{ display: 'flex', width: 250, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: 'none', backgroundColor: this.determineBackgrounColor(), marginTop: 10, borderWidth: 1, borderRadius: 2, borderColor: '#c8c8c8', borderLeftStyle: 'solid', borderRightStyle: 'solid', borderTopStyle: 'solid' }}
           onClick={this.onClick}>
           <p style={{ display: 'flex', fontSize: 60, textAlign: 'center' }}>
-            {this.props.emoji}
+            {emoji}
           </p>
           <p style={{ display: 'flex', fontWeight: 400, color: '#575757', fontSize: 24, textAlign: 'center', marginTop: -30, marginBottom: 60 }}>
-            {this.props.label}
+            {label}
           </p>
           <div style={{ display: 'flex', width: 250, height: 8, backgroundColor: this.props.color, marginBottom: -3 }}/>
         </button>
         {showPolls &&
-          <p style={{ alignSelf: 'center', textAlign: 'center', fontSize: 18 }}>
+          <p style={{ alignSelf: 'center', textAlign: 'center', fontSize: 22 }}>
             {pollResults}<br/>
-            Polls
+            🗳
           </p>}
       </div>
     )
