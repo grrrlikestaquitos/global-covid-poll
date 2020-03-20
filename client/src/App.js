@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
-import './App.css';
-import icon from './covid_icon.png';
+import React, { Component } from 'react'
+import './App.css'
+import icon from './covid_icon.png'
+
+let width = window.innerWidth
+const resizeWidthThreshold = 700
 
 export class App extends Component {
   state = {
     participantCount: 0,
-    height: window.innerHeight,
-    width: window.innerWidth
+    recalculate: false
   }
 
   async componentDidMount() {
@@ -16,9 +18,9 @@ export class App extends Component {
     .catch(() => {})
 
     window.addEventListener('resize', () => {
+      width = window.innerWidth
       this.setState({
-        height: window.innerHeight,
-        width: window.innerWidth
+        resize: !this.state.resize
       })
     })
   }
@@ -27,37 +29,85 @@ export class App extends Component {
     window.removeEventListener('resize')
   }
 
+  determineHeaderFontSize = () => {
+    let fontSize = 24
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 18
+    } else {
+      fontSize = 24
+    }
+
+    return fontSize
+  }
+
+  determineDescriptionFontSize = () => {
+    let fontSize = 16
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 12
+    } else {
+      fontSize = 16
+    }
+
+    return fontSize
+  }
+
+  determineItalicFontSize = () => {
+    let fontSize = 14
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 10
+    } else {
+      fontSize = 14
+    }
+
+    return fontSize
+  }
+
+  determineParticipantFontSize = () => {
+    let fontSize = 80
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 65
+    } else {
+      fontSize = 80
+    }
+
+    return fontSize
+  }
+
   render() {
     return (
       <div style={{ display: 'flex', backgroundColor: '#fff', flexDirection: 'column', marginBottom: 100 }}>
 
         <div style={{ display: 'flex', marginTop: 12, marginBottom: 12, marginLeft: 25, marginRight: 25, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', }}>
-            <img style={{ height: 35, marginRight: 20 }} src={icon} alt="CovidIcon"/>
+            <img style={{ height: 35, marginRight: 10 }} src={icon} alt="CovidIcon"/>
             <p style={{ fontSize: '100%', color: '#575757' }}>Global COVID-19 Pandemic Poll</p>
           </div>
 
           <p style={{ fontSize: '100%', color: '#575757' }}>Beta v0.0.1</p>
         </div>
 
-        <div style={{ width: '100%', height: 1, backgroundColor: '#acb'}}/>
+        <div style={{ height: 1, backgroundColor: '#acb'}}/>
         
-        <div style={{ display: 'flex', alignSelf: 'center', alignItems: 'center', flexDirection: 'column', marginTop: window.innerHeight * 0.05, borderColor: '#c8c8c8', borderStyle: 'solid', borderRadius: 3, borderWidth: 1, width: '82%', paddingLeft: window.innerWidth * 0.002, paddingRight: window.innerWidth * 0.002 }}>
-          <p style={{ fontWeight: 700, fontSize: 24, color: '#d67272' }}>Global COVID-19 Poll Disclaimer</p>
-          <p style={{ marginTop: -10, fontWeight: 500, fontSize: 16, color: '#575757', textAlign: 'center' }}>
-            This poll is an effort to allow the global community to shed some light into the covid-19 pandemic.<br/>
-            We ask for an honest participation. Otherwise, this could have a serious negative implication to<br/>
+        <div style={{ display: 'flex', alignSelf: 'center', alignItems: 'center', flexDirection: 'column', marginTop: window.innerHeight * 0.05, borderColor: '#c8c8c8', borderStyle: 'solid', borderRadius: 3, borderWidth: 1, width: '80%', paddingLeft: window.innerWidth * 0.03, paddingRight: window.innerWidth * 0.03 }}>
+          <p style={{ fontWeight: 700, fontSize: this.determineHeaderFontSize(), color: '#d67272' }}>Global COVID-19 Poll Disclaimer</p>
+          <p style={{ marginTop: -10, fontWeight: 500, fontSize: this.determineDescriptionFontSize(), color: '#575757', textAlign: 'center' }}>
+            This poll is an effort to allow the global community to shed some light into the covid-19 pandemic.
+            We ask for an honest participation. Otherwise, this could have a serious negative implication to
             public opinion.
           </p>
 
-          <i style={{ display: 'flex', fontWeight: 400, fontSize: 14, color: '#575757', fontStyle: 'italics', marginBottom: 20, textAlign: 'center' }}>
-            This poll is not backed by any scientific or governmental agency and thus should be treated with<br/>
+          <i style={{ display: 'flex', fontWeight: 400, fontSize: this.determineItalicFontSize(), color: '#575757', fontStyle: 'italics', marginBottom: 20, textAlign: 'center' }}>
+            This poll is not backed by any scientific or governmental agency and thus should be treated with
             skepticism; data could be innacurate or tampered through foreign means.
           </i>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', marginTop: -40 }}>
-          <p style={{ fontSize: 80, fontWeight: 700, color: '#575757', borderBottomWidth: 3, borderBottomColor: '#575757', borderBottomStyle: 'solid', textAlign: 'center' }}>
+          <p style={{ fontSize: this.determineParticipantFontSize(), fontWeight: 700, color: '#575757', borderBottomWidth: 3, borderBottomColor: '#575757', borderBottomStyle: 'solid', textAlign: 'center' }}>
             {this.state.participantCount.toLocaleString()}<br/>
             🙋‍♂️&🙋‍♀️👉🗳
           </p>
@@ -143,13 +193,25 @@ class QuestionContainer extends Component {
     .catch(() => {})
   }
 
+  determineQuestionFontSize = () => {
+    let fontSize = 24
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 18
+    } else {
+      fontSize = 24
+    }
+
+    return fontSize
+  }
+
   render() {
     const { selectedAnswer, pollResults } = this.state;
     const pointerEvents = selectedAnswer ? 'none' : '';
 
     return (
       <div>
-        <p style={{ fontSize: 24, fontWeight: 400, color: '#d67272' }}>
+        <p style={{ fontSize: this.determineQuestionFontSize(), fontWeight: 400, color: '#d67272' }}>
           {this.props.question}
         </p>
 
@@ -192,6 +254,42 @@ class EmojiButton extends Component {
     }
   }
 
+  determineEmojiFontSize = () => {
+    let fontSize = 60
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 30
+    } else {
+      fontSize = 60
+    }
+
+    return fontSize
+  }
+
+  determineLabelFontSize = () => {
+    let fontSize = 20
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 18
+    } else {
+      fontSize = 20
+    }
+
+    return fontSize
+  }
+
+  determineVoteFontSize = () => {
+    let fontSize = 22
+
+    if (width < resizeWidthThreshold) {
+      fontSize = 18
+    } else {
+      fontSize = 22
+    }
+
+    return fontSize
+  }
+
   render() {
     const { showPolls, pollResults, emoji, label } = this.props;
 
@@ -202,16 +300,16 @@ class EmojiButton extends Component {
           onMouseLeave={() => this.setState({ isHovering: false })}
           style={{ display: 'flex', width: (window.innerWidth * 0.22), flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: 'none', backgroundColor: this.determineBackgrounColor(), marginTop: 10, borderWidth: 1, borderRadius: 2, borderColor: '#c8c8c8', borderLeftStyle: 'solid', borderRightStyle: 'solid', borderTopStyle: 'solid' }}
           onClick={this.onClick}>
-          <p style={{ display: 'flex', fontSize: 60, textAlign: 'center' }}>
+          <p style={{ display: 'flex', fontSize: this.determineEmojiFontSize(), textAlign: 'center' }}>
             {emoji}
           </p>
-          <p style={{ display: 'flex', fontSize: 20, fontWeight: 400, color: '#575757', textAlign: 'center', marginTop: -(window.innerHeight * 0.02), marginBottom: window.innerHeight * 0.04 }}>
+          <p style={{ display: 'flex', fontSize: this.determineLabelFontSize(), fontWeight: 400, color: '#575757', textAlign: 'center', marginTop: -(window.innerHeight * 0.02), marginBottom: window.innerHeight * 0.04 }}>
             {label}
           </p>
           <div style={{ display: 'flex', width: (window.innerWidth * 0.22), height: 8, backgroundColor: this.props.color, marginBottom: -3 }}/>
         </button>
         {showPolls &&
-          <p style={{ alignSelf: 'center', textAlign: 'center', fontSize: 22 }}>
+          <p style={{ alignSelf: 'center', textAlign: 'center', fontSize: this.determineVoteFontSize() }}>
             {pollResults.toLocaleString()} 🗳<br/>
             submitted
           </p>}
